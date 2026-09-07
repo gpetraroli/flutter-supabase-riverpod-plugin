@@ -1,0 +1,10 @@
+{
+  "name": "flutter-supabase-riverpod",
+  "displayName": "Flutter + Supabase + Riverpod",
+  "version": "1.0.0",
+  "description": "Scaffolds and extends Flutter apps using Supabase, Riverpod, GoRouter, and a feature-first repository/notifier architecture.",
+  "author": {
+    "name": "Giuseppe Petraroli"
+  },
+  "keywords": ["flutter", "supabase", "riverpod", "gorouter"]
+}

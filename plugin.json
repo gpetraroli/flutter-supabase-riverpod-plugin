@@ -1,0 +1,9 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "flutter-supabase-riverpod",
+  "description": "Scaffolds Flutter apps with Supabase, Riverpod, and GoRouter.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Giuseppe Petraroli"
+  }
+}
