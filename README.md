@@ -30,12 +30,15 @@ After installing, invoke it in chat with `/flutter-supabase-riverpod`.
 
 ## Cursor
 
-Symlink this repo into Cursor’s local plugins folder, then reload the window:
+Copy this repo into Cursor’s local plugins folder, then run **Developer: Reload Window**:
 
 ```sh
-mkdir -p ~/.cursor/plugins/local
-ln -s /absolute/path/to/flutter-supabase-riverpod-plugin ~/.cursor/plugins/local/flutter-supabase-riverpod
+cp -a /absolute/path/to/flutter-supabase-riverpod-plugin ~/.cursor/plugins/local/flutter-supabase-riverpod
 ```
+
+Do not symlink. Cursor skips those links, so `/flutter-supabase-riverpod` never appears in chat. After reload, the plugin should show up under Customize → Plugins.
+
+Re-copy after you change the plugin, then reload again.
 
 ## Claude Code
 
