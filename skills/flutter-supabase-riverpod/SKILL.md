@@ -14,7 +14,7 @@ Widget (UI)
     ↕  ref.watch / ref.read
 Notifier (state + actions)
     ↕  ref.read / ref.watch
-Repository / Service (data access)
+Repository (data) / Service (rules + shared I/O)
     ↕  constructor injection
 SupabaseClient (via supabaseProvider)
 ```
@@ -23,10 +23,11 @@ SupabaseClient (via supabaseProvider)
 |---|---|---|
 | **Widget** | Layout, local form state, debounce, button loading | Call Supabase or repositories |
 | **Notifier** | Server-backed state, search query, invalidation | Know table names or JSON keys |
+| **Model** | Entity fields, `fromJson` / `toJson`, getters, setters, withers | Implement rules or calculations |
 | **Repository** | Queries, JSON ↔ model, auth preconditions | Hold UI state or import widgets |
-| **Service** | Cross-cutting I/O (storage) used by multiple features | Contain entity-specific logic |
+| **Service** | Entity business rules; I/O reused by many features | Hold UI state or import widgets |
 
-Widgets never import `supabase_flutter`. Repositories never hold UI state.
+Widgets never import `supabase_flutter`. Repositories never hold UI state. **No business logic on the model.**
 
 ## New app workflow
 
@@ -124,11 +125,12 @@ lib/
   router/app_router.dart
   themes/
   <feature>/
-    models/
+    models/             # entity + fromJson/toJson + getters/setters/withers
     repositories/       # class + *RepositoryProvider
     providers/          # notifiers + family providers
     screens/            # index, new, edit, view
     widgets/            # list, list tile, form
+    services/           # optional: entity business logic
     enums/              # optional
     controllers/        # optional: multi-step UI orchestration
     mappers/            # optional: external API → domain
@@ -139,7 +141,7 @@ supabase/
   functions/            # Edge Functions (`_shared/` + one folder per function)
 ```
 
-One feature folder per domain. Shared I/O lives in `core/services/`, not in a feature.
+One feature folder per domain. Shared I/O lives in `core/services/`. Entity business logic lives in `<feature>/services/`.
 
 ## Provider catalog
 
@@ -165,7 +167,7 @@ Do not use `StateProvider` / `ChangeNotifier` for server data. Do not put list s
 
 1. **Provider tree** — everything backend-related depends on `supabaseProvider`, never `Supabase.instance` in feature code (only the root provider and `main.dart` initialize it).
 2. **Provider next to class** — `noteRepositoryProvider` lives in the repository file; the notifier provider lives in the notifier file.
-3. **Manual JSON** — no `json_serializable` / Freezed unless the user asks. Models own `fromJson` / `toJson` and domain getters.
+3. **No business logic on models.** The model is the entity: fields, `fromJson` / `toJson`, getters, setters, withers (`copyWith`). No `json_serializable` / Freezed unless the user asks. Rules, eligibility, and calculations belong in a service.
 4. **Strip write fields** — repositories remove `id`, `created_at`, `updated_at` before insert/update. Include `user_id` only on create.
 5. **Create requires a session** — throw `AuthException` if `currentUser` is null.
 6. **Invalidate in the notifier** — after create: `ref.invalidateSelf()`. After update/delete: also `ref.invalidate(entityProvider(id))` and any dependent family/list providers.

@@ -6,7 +6,7 @@ Create files in this order. Register routes last.
 
 ## 1. Model — `lib/note/models/note_model.dart`
 
-Manual `fromJson` / `toJson`. JSON keys are snake_case. Put derived values on the model (getters), not in widgets.
+**No business logic on the model.** It is the entity: fields, `fromJson` / `toJson` (snake_case keys), getters, setters, and withers (`copyWith`). Rules, eligibility, and calculations belong in a feature service (`lib/<feature>/services/`).
 
 `imagePath` is a **storage path** (`userId/timestamp.jpg`), never a public URL. The column is `image_path`.
 
@@ -646,9 +646,11 @@ If `handle_updated_at` already exists (later features), omit the function and on
 | Kind | When | Example |
 |---|---|---|
 | Repository | One domain table / auth API / `functions.invoke` | `NoteRepository` |
-| Service | I/O reused by many features | `ImageStorageService` |
+| Service | Entity business rules, or I/O reused by many features | `NoteService`, `ImageStorageService` |
 | Edge Function | Secrets, service role, third-party APIs | `supabase/functions/<name>/` |
 | Controller | Multi-step UI flow (scan → confirm → result) | `lib/<feature>/controllers/` |
 | Mapper | Third-party DTO → domain / form prefill | `lib/<feature>/mappers/` |
 
-Public keyless HTTP APIs get a Dart repository (no Supabase client) plus a mapper. Anything with a secret goes in an Edge Function; the feature repository calls `_client.functions.invoke`. Widgets must not import third-party packages or invoke functions.
+The notifier calls a feature service for entity rules. Shared I/O services (storage) are injected into repositories. Widgets must not import third-party packages or invoke functions.
+
+Public keyless HTTP APIs get a Dart repository (no Supabase client) plus a mapper. Anything with a secret goes in an Edge Function; the feature repository calls `_client.functions.invoke`.

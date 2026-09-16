@@ -193,4 +193,5 @@ Local: `supabase functions serve`. Remote: `supabase functions deploy`.
 - Invoking Edge Functions from a widget
 - Putting third-party secrets in the Flutter app
 - Code-generated models by default
+- Business logic on a model (no rules, eligibility, or calculations — those go in a service)
 - Feature widgets importing another feature's repository (go through that feature's notifier, or a dedicated repository method called by the owning notifier)
