@@ -333,19 +333,23 @@ Never commit `.env`. Copy `.env.example` for the keys. Do not commit `supabase/.
 
 Typical files: `.env` (local), `.env_remote` (linked dev), `.env_prod` (production).
 
+The app reads these as compile-time defines (`String.fromEnvironment`). Always pass `--dart-define-from-file`. Do not use `flutter_dotenv`.
+
 ### 4. Run the app
 
 ```sh
 flutter pub get
-flutter run
+flutter run --dart-define-from-file=.env
 ```
 
 Physical Android + local API:
 
 ```sh
 adb reverse tcp:54321 tcp:54321
-flutter run
+flutter run --dart-define-from-file=.env
 ```
+
+Remote keys: `flutter run --dart-define-from-file=.env_remote`.
 
 ## Migrations
 
@@ -373,7 +377,7 @@ Repo (supabase/migrations/*.sql)
 
 1. `supabase db push` (linked **dev**).
 2. `supabase functions deploy` (and `supabase secrets set` for any extra secrets).
-3. Point `.env_remote` at the remote URL and publishable key.
+3. Point `.env_remote` at the remote URL and publishable key; run with `--dart-define-from-file=.env_remote`.
 4. Production: `supabase link --project-ref <prod-project-id>`, `db push`, `functions deploy`, then **link back to dev**.
 
 ## Edge Functions

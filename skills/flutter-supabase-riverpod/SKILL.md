@@ -36,7 +36,7 @@ Copy this checklist and complete it in order:
 ```
 New app:
 - [ ] 1. Confirm name, org, package, first feature, home route
-- [ ] 2. flutter create + dependencies + .env + .gitignore
+- [ ] 2. flutter create + dependencies + .env + launch.json + .gitignore
 - [ ] 3. supabase init + start + fill .env from status
 - [ ] 4. Core: supabaseProvider, services, splash, theme
 - [ ] 5. Auth: repository, StreamNotifier, login/signup
@@ -64,20 +64,22 @@ flutter create --org <org> --project-name <package> <app_dir>
 Install dependencies with `flutter pub add` (current versions, caret constraints). Then `dart analyze`. If a resolved package does not compile on this Flutter SDK, constrain that package (or the parent that pulled it) in `pubspec.yaml` until analyze is clean. Do not pin versions before `pub add` fails.
 
 ```bash
-flutter pub add flutter_riverpod flutter_dotenv supabase_flutter go_router
+flutter pub add flutter_riverpod supabase_flutter go_router
 flutter pub add --dev custom_lint riverpod_lint
 ```
 
-If the first feature stores images: `flutter pub add image_picker`.
+If the first feature stores images: `flutter pub add image_picker`. Do not add `flutter_dotenv`.
 
-`.env` (and `flutter: assets: - .env`):
+`.env` (never commit; not an asset). Keys are compile-time defines via `--dart-define-from-file`:
 
 ```
 SUPABASE_URL=
 SUPABASE_PUBLISHABLE_KEY=
 ```
 
-Also write `.env.example` with the same keys (empty values) and add `.env`, `supabase/.temp/`, and `supabase/.env` to `.gitignore`. Never commit `.env`.
+Read them with `const String.fromEnvironment(...)`. Always pass the file when running or building (`flutter run --dart-define-from-file=.env`). Write `.vscode/launch.json` with the same flag in `toolArgs` so IDE runs work.
+
+Also write `.env.example` with the same keys (empty values) and add `.env`, `.env_remote`, `.env_prod`, `supabase/.temp/`, and `supabase/.env` to `.gitignore`. Never commit `.env`.
 
 Enable `custom_lint` in `analysis_options.yaml`. Templates: [bootstrap.md](bootstrap.md) (main, auth, router) and [ui.md](ui.md) (shared widgets, theme).
 

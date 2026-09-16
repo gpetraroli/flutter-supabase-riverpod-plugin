@@ -16,6 +16,8 @@ analyzer:
 
 ## .env and secrets
 
+Do not use `flutter_dotenv`. Do not list `.env` under `flutter: assets`. Values are compile-time defines.
+
 `.env` (never commit):
 
 ```
@@ -30,18 +32,35 @@ SUPABASE_URL=
 SUPABASE_PUBLISHABLE_KEY=
 ```
 
-`pubspec.yaml` assets:
+Pass the file on every run and build:
 
-```yaml
-flutter:
-  assets:
-    - .env
+```sh
+flutter run --dart-define-from-file=.env
+flutter build apk --dart-define-from-file=.env
+```
+
+`.vscode/launch.json` (so IDE / Cursor runs inject the same defines):
+
+```json
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "app",
+      "request": "launch",
+      "type": "dart",
+      "toolArgs": ["--dart-define-from-file=.env"]
+    }
+  ]
+}
 ```
 
 Add to `.gitignore` (flutter create does not include these):
 
 ```
 .env
+.env_remote
+.env_prod
 supabase/.temp/
 supabase/.env
 ```
@@ -50,7 +69,6 @@ supabase/.env
 
 ```dart
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -58,15 +76,19 @@ import 'package:<package>/router/app_router.dart';
 import 'package:<package>/themes/light_theme.dart';
 
 Future<void> _initializeSupabase() async {
-  await Supabase.initialize(
-    url: dotenv.env['SUPABASE_URL']!,
-    publishableKey: dotenv.env['SUPABASE_PUBLISHABLE_KEY']!,
-  );
+  const url = String.fromEnvironment('SUPABASE_URL');
+  const publishableKey = String.fromEnvironment('SUPABASE_PUBLISHABLE_KEY');
+  if (url.isEmpty || publishableKey.isEmpty) {
+    throw StateError(
+      'Missing SUPABASE_URL or SUPABASE_PUBLISHABLE_KEY. '
+      'Pass --dart-define-from-file=.env',
+    );
+  }
+  await Supabase.initialize(url: url, publishableKey: publishableKey);
 }
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load(fileName: '.env');
   await _initializeSupabase();
   runApp(const ProviderScope(child: App()));
 }
