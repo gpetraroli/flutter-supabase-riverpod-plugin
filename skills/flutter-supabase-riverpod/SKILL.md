@@ -61,7 +61,7 @@ New app:
 flutter create --org <org> --project-name <package> <app_dir>
 ```
 
-Install dependencies with `flutter pub add` so pub resolves current versions. Do not pin versions in `pubspec.yaml` by hand.
+Install dependencies with `flutter pub add` (current versions, caret constraints). Then `dart analyze`. If a resolved package does not compile on this Flutter SDK, constrain that package (or the parent that pulled it) in `pubspec.yaml` until analyze is clean. Do not pin versions before `pub add` fails.
 
 ```bash
 flutter pub add flutter_riverpod flutter_dotenv supabase_flutter go_router
@@ -101,7 +101,7 @@ Remote: link the **dev** project (`supabase link --project-ref`), then `supabase
 4. Screens: index / new / edit / view + form + list
 5. Register `GoRoute`s
 6. Never import `supabase_flutter` in widgets
-7. `supabase migration new …`, put table/RLS/storage SQL in that file, `supabase db reset`
+7. `supabase migration new …`, put table/GRANT/RLS/storage SQL in that file, `supabase db reset`
 8. If the feature needs secrets or service-role logic: `supabase functions new <name>`, invoke from the repository, `supabase functions serve` locally
 
 Full templates: [feature.md](feature.md). CLI: [supabase.md](supabase.md).
@@ -180,7 +180,7 @@ Do not use `StateProvider` / `ChangeNotifier` for server data. Do not put list s
 13. **Imports** — `main.dart` uses `package:<app>/...`. Every other `lib/` file uses `/...` from `lib` (e.g. `/note/models/note_model.dart`). No `../`.
 14. **Errors in UI** — generic SnackBar ("An error occurred. Please try again."). List `when(error:)` uses a generic message, not `$error`. After `await`, check `mounted`.
 15. **Navigation** — `context.push` for new/edit/view, `context.pop` after successful save, `context.go` after delete.
-16. **Schema** — every table, policy, and bucket is a file under `supabase/migrations/`. Apply with `supabase db reset` (local) or `supabase db push` (remote). Do not create schema only in the Dashboard.
+16. **Schema** — every table, GRANT, policy, and bucket is a file under `supabase/migrations/`. RLS is not enough: grant `select, insert, update, delete` on the table to `authenticated` (not `anon`) and `all` to `service_role`. Apply with `supabase db reset` (local) or `supabase db push` (remote). Do not create schema only in the Dashboard.
 17. **Edge Functions** — secrets, service-role writes, and third-party APIs live in `supabase/functions/<name>/index.ts`. Dart repositories call `_client.functions.invoke`. Widgets never invoke functions. Local: `supabase functions serve` (or restart the stack after adding a function). Remote: `supabase functions deploy` + `supabase secrets set`.
 
 ## Screen map

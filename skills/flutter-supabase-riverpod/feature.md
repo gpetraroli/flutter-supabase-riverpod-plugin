@@ -556,6 +556,8 @@ supabase migration new create_note_images_bucket
 
 Then `supabase db reset`. Remote: `supabase db push` when the user is ready. Full CLI: [supabase.md](supabase.md).
 
+RLS policies do not grant table DML. Include `GRANT` in the same migration. Do not grant `anon`.
+
 ```sql
 create table public.notes (
   id uuid primary key default gen_random_uuid(),
@@ -585,6 +587,9 @@ create trigger notes_set_updated_at
   execute function public.handle_updated_at();
 
 alter table public.notes enable row level security;
+
+grant select, insert, update, delete on table public.notes to authenticated;
+grant all on table public.notes to service_role;
 
 create policy "Users can read their own notes"
   on public.notes for select to authenticated

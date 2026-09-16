@@ -20,7 +20,7 @@ supabase init
 This creates `supabase/config.toml`. Then:
 
 1. Set `[auth.email] enable_confirmations = false` so local signup creates a session.
-2. Keep `[db.seed] enabled = true` and `sql_paths = ["./seeds/*.sql"]`.
+2. After init, `[db.seed] enabled = true` is already set. Change `sql_paths` from the CLI default `["./seed.sql"]` to `["./seeds/*.sql"]` so files under `supabase/seeds/` run on `db reset`.
 3. Add `supabase/.temp/` to `.gitignore`.
 4. Start and fill `.env` from local keys (do not invent them):
 
@@ -94,7 +94,7 @@ If you must push production, link prod, `db push`, then **link back to dev**.
 
 ## Seeds
 
-`supabase/seeds/` runs only on `db reset` (local). Use for a confirmed email user and sample rows. Token columns on `auth.users` must be empty strings, not NULL.
+`supabase/seeds/` runs only on `db reset` (local), and only if `[db.seed] sql_paths` is `["./seeds/*.sql"]`. Use for a confirmed email user and sample rows. Token columns on `auth.users` must be empty strings, not NULL.
 
 `supabase/seeds/00_extensions.sql`:
 

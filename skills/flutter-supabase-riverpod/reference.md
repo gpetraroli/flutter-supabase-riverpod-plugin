@@ -166,7 +166,7 @@ supabase db reset          # local
 supabase db push           # linked remote
 ```
 
-Do not create tables only in the Dashboard. Keys: `supabase status -o env` → `SUPABASE_URL` / `SUPABASE_PUBLISHABLE_KEY`.
+Do not create tables only in the Dashboard. Table DML grants belong in the same migration as RLS (`authenticated` only, not `anon`). Keys: `supabase status -o env` → `SUPABASE_URL` / `SUPABASE_PUBLISHABLE_KEY`.
 
 ## Edge Function invoke (repository)
 
@@ -190,6 +190,7 @@ Local: `supabase functions serve`. Remote: `supabase functions deploy`.
 - Creating tables only in the Dashboard (no migration file)
 - `supabase link` to production during daily work
 - Table or storage without RLS policies
+- Table without `GRANT` DML to `authenticated` (RLS policies are not enough)
 - Invoking Edge Functions from a widget
 - Putting third-party secrets in the Flutter app
 - Code-generated models by default
