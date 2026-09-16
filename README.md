@@ -30,16 +30,6 @@ After installing, invoke it in chat with `/flutter-supabase-riverpod`.
 
 ## Cursor
 
-Install in **one** of these ways:
-
-### Marketplace
-
-Open **Customize**, search `flutter-supabase-riverpod`, then **Install** (user or project scope).
-
-On a Teams or Enterprise plan, you can also import this GitHub repo as a team marketplace under **Dashboard → Plugins**.
-
-### Manual
-
 Symlink this repo into Cursor’s local plugins folder, then reload the window:
 
 ```sh
@@ -48,18 +38,6 @@ ln -s /absolute/path/to/flutter-supabase-riverpod-plugin ~/.cursor/plugins/local
 ```
 
 ## Claude Code
-
-Install in **one** of these ways:
-
-### Marketplace
-
-Add a marketplace that points at this repo, then:
-
-```sh
-claude plugin install flutter-supabase-riverpod@<marketplace-name>
-```
-
-### Manual
 
 From this directory:
 
