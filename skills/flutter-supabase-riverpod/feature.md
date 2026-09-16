@@ -342,7 +342,7 @@ Navigate to view/edit with `routeName.replaceFirst(':id', id)`.
 
 ### Index
 
-`StatelessWidget`. `Scaffold` + `AppBar` + `DrawerMenu` + `BodyContainer(child: NoteList())` + FAB `context.push(NoteNewScreen.routeName)`.
+`StatelessWidget`. `Scaffold` + `AppBar` + `BodyContainer(child: NoteList())` + FAB `context.push(NoteNewScreen.routeName)`.
 
 ### List
 
@@ -542,8 +542,7 @@ After every `await`: `if (!mounted) return;`
 ## 5. Wire-up
 
 1. Add `GoRoute`s in `app_router.dart`
-2. Add a `DrawerListTile` pointing at the index
-3. If this is the home feature, use its index as `initialLocation` and as the post-login redirect target
+2. If this is the home feature, use its index as `initialLocation` and as the post-login redirect target
 
 ## 6. Migration
 

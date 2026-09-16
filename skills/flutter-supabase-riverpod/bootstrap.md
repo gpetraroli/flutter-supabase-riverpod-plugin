@@ -2,7 +2,7 @@
 
 Use these when scaffolding an app. Replace `<package>`, `<AppTitle>`, and the home screen import with the real names.
 
-Shared widgets, theme, and drawer: [ui.md](ui.md).
+Shared widgets and theme: [ui.md](ui.md).
 
 ## analysis_options.yaml
 

@@ -41,7 +41,7 @@ New app:
 - [ ] 5. Auth: repository, StreamNotifier, login/signup
 - [ ] 6. Router: GoRouter + auth redirect + splash
 - [ ] 7. First feature: model → repository → notifier → screens
-- [ ] 8. Drawer + wire routes
+- [ ] 8. Register GoRoutes
 - [ ] 9. README (local start, migrations, functions, env)
 ```
 
@@ -78,13 +78,15 @@ SUPABASE_PUBLISHABLE_KEY=
 
 Also write `.env.example` with the same keys (empty values) and add `.env`, `supabase/.temp/`, and `supabase/.env` to `.gitignore`. Never commit `.env`.
 
-Enable `custom_lint` in `analysis_options.yaml`. Templates: [bootstrap.md](bootstrap.md) (main, auth, router) and [ui.md](ui.md) (shared widgets, theme, drawer).
+Enable `custom_lint` in `analysis_options.yaml`. Templates: [bootstrap.md](bootstrap.md) (main, auth, router) and [ui.md](ui.md) (shared widgets, theme).
 
 **Step 3 — Local Supabase** — follow [supabase.md](supabase.md): `supabase init`, `[auth.email] enable_confirmations = false`, `supabase start`, fill `.env` from `supabase status -o env`. Do not invent keys. Optional seed user after the first migration exists.
 
 **Steps 4–6** — copy the bootstrap templates. Do not invent a different auth or redirect scheme.
 
 **Step 7** — follow [feature.md](feature.md) for the first entity: Dart files **and** `supabase migration new` + `db reset`.
+
+**Step 8** — register `GoRoute`s. If this is the home feature, use its index as `initialLocation` and as the post-login redirect target.
 
 **Step 9** — write `README.md` from the template in [supabase.md](supabase.md).
 
@@ -96,7 +98,7 @@ Remote: link the **dev** project (`supabase link --project-ref`), then `supabase
 2. Repository + `*RepositoryProvider` injecting `supabaseProvider` (and services)
 3. Notifier: list = `AsyncNotifierProvider`; detail = `FutureProvider.family`
 4. Screens: index / new / edit / view + form + list
-5. Register `GoRoute`s; add a `DrawerListTile`
+5. Register `GoRoute`s
 6. Never import `supabase_flutter` in widgets
 7. `supabase migration new …`, put table/RLS/storage SQL in that file, `supabase db reset`
 8. If the feature needs secrets or service-role logic: `supabase functions new <name>`, invoke from the repository, `supabase functions serve` locally
@@ -120,7 +122,6 @@ lib/
     screens/            # login, signup
     widgets/            # forms
   router/app_router.dart
-  navigation/           # drawer, DrawerListTile
   themes/
   <feature>/
     models/
@@ -176,7 +177,7 @@ Do not use `StateProvider` / `ChangeNotifier` for server data. Do not put list s
 12. **External APIs** — public, keyless APIs: Dart repository + mapper; widgets see domain models only. Secrets, service-role writes, or third-party credentials: Edge Function; the feature repository invokes it.
 13. **Imports** — `main.dart` uses `package:<app>/...`. Every other `lib/` file uses `/...` from `lib` (e.g. `/note/models/note_model.dart`). No `../`.
 14. **Errors in UI** — generic SnackBar ("An error occurred. Please try again."). List `when(error:)` uses a generic message, not `$error`. After `await`, check `mounted`.
-15. **Navigation** — `context.push` for new/edit/view, `context.pop` after successful save, `context.go` for drawer and post-delete.
+15. **Navigation** — `context.push` for new/edit/view, `context.pop` after successful save, `context.go` after delete.
 16. **Schema** — every table, policy, and bucket is a file under `supabase/migrations/`. Apply with `supabase db reset` (local) or `supabase db push` (remote). Do not create schema only in the Dashboard.
 17. **Edge Functions** — secrets, service-role writes, and third-party APIs live in `supabase/functions/<name>/index.ts`. Dart repositories call `_client.functions.invoke`. Widgets never invoke functions. Local: `supabase functions serve` (or restart the stack after adding a function). Remote: `supabase functions deploy` + `supabase secrets set`.
 
@@ -184,7 +185,7 @@ Do not use `StateProvider` / `ChangeNotifier` for server data. Do not put list s
 
 | Screen | Widget type | Body |
 |---|---|---|
-| Index | `StatelessWidget` | `Scaffold` + `AppBar` + `Drawer` + `BodyContainer` + list + FAB → new |
+| Index | `StatelessWidget` | `Scaffold` + `AppBar` + `BodyContainer` + list + FAB → new |
 | New | `StatelessWidget` | `BodyContainer` + scroll + form (no entity) |
 | Edit | `ConsumerWidget` | `ref.watch(entityProvider(id)).when(...)` + same form with entity |
 | View | `ConsumerWidget` | `ref.watch(entityProvider(id)).when(...)` + FAB → edit |
@@ -198,7 +199,7 @@ Delete: confirm with a dialog. If the entity is referenced elsewhere, block dele
 ## Additional resources
 
 - Bootstrap (main, auth, router, env): [bootstrap.md](bootstrap.md)
-- Shared UI (inputs, dialogs, drawer, theme): [ui.md](ui.md)
+- Shared UI (inputs, dialogs, theme): [ui.md](ui.md)
 - Feature templates (model, repo, notifier, screens, SQL): [feature.md](feature.md)
 - Supabase CLI (init, start, migrations, functions, README): [supabase.md](supabase.md)
 - Compact code snippets: [reference.md](reference.md)
