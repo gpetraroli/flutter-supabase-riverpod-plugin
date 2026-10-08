@@ -166,7 +166,7 @@ supabase db reset          # local
 supabase db push           # linked remote
 ```
 
-Do not create tables only in the Dashboard. Table DML grants belong in the same migration as RLS (`authenticated` only, not `anon`). Keys: `supabase status -o env` → `.env` → `SUPABASE_URL` / `SUPABASE_PUBLISHABLE_KEY`. Run with `--dart-define-from-file=.env` (`const String.fromEnvironment`). Do not use `flutter_dotenv`.
+Do not create tables only in the Dashboard. Table DML grants belong in the same migration as RLS (`authenticated` only, not `anon`). Keys: `supabase status -o env` → `--dart-define=SUPABASE_URL` / `--dart-define=SUPABASE_PUBLISHABLE_KEY`, read with `const String.fromEnvironment`.
 
 ## Edge Function invoke (repository)
 
@@ -186,9 +186,8 @@ Local: `supabase functions serve`. Remote: `supabase functions deploy`.
 - `ref.read` inside a provider `build()`
 - Putting `AsyncValue` loading for submit on the list provider (use local `_isLoading`)
 - Public storage URLs persisted in the database
-- Committing `.env` or `supabase/.env`
-- `flutter_dotenv` or bundling `.env` as an asset
-- `flutter run` / `flutter build` without `--dart-define-from-file=.env`
+- Committing `supabase/.env`
+- `flutter run` / `flutter build` without `--dart-define=SUPABASE_URL` and `--dart-define=SUPABASE_PUBLISHABLE_KEY`
 - Creating tables only in the Dashboard (no migration file)
 - `supabase link` to production during daily work
 - Table or storage without RLS policies

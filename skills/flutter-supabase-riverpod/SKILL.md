@@ -36,14 +36,14 @@ Copy this checklist and complete it in order:
 ```
 New app:
 - [ ] 1. Confirm name, org, package, first feature, home route
-- [ ] 2. flutter create + dependencies + .env + launch.json + .gitignore
-- [ ] 3. supabase init + start + fill .env from status
+- [ ] 2. flutter create + dependencies + launch.json + .gitignore
+- [ ] 3. supabase init + start + dart-defines from status
 - [ ] 4. Core: supabaseProvider, services, splash, theme
 - [ ] 5. Auth: repository, StreamNotifier, login/signup
 - [ ] 6. Router: GoRouter + auth redirect + splash
 - [ ] 7. First feature: model → repository → notifier → screens
 - [ ] 8. Register GoRoutes
-- [ ] 9. README (local start, migrations, functions, env)
+- [ ] 9. README (local start, migrations, functions, dart-defines)
 ```
 
 **Step 1 — Confirm scope** if the user did not specify:
@@ -68,22 +68,21 @@ flutter pub add flutter_riverpod supabase_flutter go_router
 flutter pub add --dev custom_lint riverpod_lint
 ```
 
-If the first feature stores images: `flutter pub add image_picker`. Do not add `flutter_dotenv`.
+If the first feature stores images: `flutter pub add image_picker`.
 
-`.env` (never commit; not an asset). Keys are compile-time defines via `--dart-define-from-file`:
+Read `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY` with `const String.fromEnvironment(...)`. Pass them on every run and build:
 
+```sh
+flutter run \
+  --dart-define=SUPABASE_URL=<API_URL> \
+  --dart-define=SUPABASE_PUBLISHABLE_KEY=<ANON_KEY>
 ```
-SUPABASE_URL=
-SUPABASE_PUBLISHABLE_KEY=
-```
 
-Read them with `const String.fromEnvironment(...)`. Always pass the file when running or building (`flutter run --dart-define-from-file=.env`). Write `.vscode/launch.json` with the same flag in `toolArgs` so IDE runs work.
-
-Also write `.env.example` with the same keys (empty values) and add `.env`, `.env_remote`, `.env_prod`, `supabase/.temp/`, and `supabase/.env` to `.gitignore`. Never commit `.env`.
+Write `.vscode/launch.json` with the same flags in `toolArgs` so IDE runs work. Add `supabase/.temp/` and `supabase/.env` to `.gitignore`. `supabase/.env` is only for Edge Function secrets.
 
 Enable `custom_lint` in `analysis_options.yaml`. Templates: [bootstrap.md](bootstrap.md) (main, auth, router) and [ui.md](ui.md) (shared widgets, theme).
 
-**Step 3 — Local Supabase** — follow [supabase.md](supabase.md): `supabase init`, `[auth.email] enable_confirmations = false`, `supabase start`, fill `.env` from `supabase status -o env`. Do not invent keys. Optional seed user after the first migration exists.
+**Step 3 — Local Supabase** — follow [supabase.md](supabase.md): `supabase init`, `[auth.email] enable_confirmations = false`, `supabase start`, fill the `--dart-define` values in `launch.json` from `supabase status -o env` (`API_URL` → `SUPABASE_URL`, `ANON_KEY` → `SUPABASE_PUBLISHABLE_KEY`). Optional seed user after the first migration exists.
 
 **Steps 4–6** — copy the bootstrap templates. Do not invent a different auth or redirect scheme.
 
@@ -202,7 +201,7 @@ Delete: confirm with a dialog. If the entity is referenced elsewhere, block dele
 
 ## Additional resources
 
-- Bootstrap (main, auth, router, env): [bootstrap.md](bootstrap.md)
+- Bootstrap (main, auth, router, dart-defines): [bootstrap.md](bootstrap.md)
 - Shared UI (inputs, dialogs, theme): [ui.md](ui.md)
 - Feature templates (model, repo, notifier, screens, SQL): [feature.md](feature.md)
 - Supabase CLI (init, start, migrations, functions, README): [supabase.md](supabase.md)

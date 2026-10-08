@@ -22,7 +22,7 @@ This creates `supabase/config.toml`. Then:
 1. Set `[auth.email] enable_confirmations = false` so local signup creates a session.
 2. After init, `[db.seed] enabled = true` is already set. Change `sql_paths` from the CLI default `["./seed.sql"]` to `["./seeds/*.sql"]` so files under `supabase/seeds/` run on `db reset`.
 3. Add `supabase/.temp/` to `.gitignore`.
-4. Start and fill `.env` from local keys (do not invent them):
+4. Start, then put the local keys from `supabase status -o env` into `.vscode/launch.json` as `--dart-define`:
 
 ```sh
 supabase start
@@ -31,10 +31,12 @@ supabase status -o env
 
 Map:
 
-| `supabase status` | `.env` |
+| `supabase status` | `--dart-define` / `String.fromEnvironment` |
 |---|---|
 | `API_URL` | `SUPABASE_URL` |
 | `ANON_KEY` | `SUPABASE_PUBLISHABLE_KEY` |
+
+The app reads them with `const String.fromEnvironment`. See [bootstrap.md](bootstrap.md).
 
 Local URL is `http://127.0.0.1:54321`. On a physical Android device:
 
@@ -320,36 +322,38 @@ supabase start
 
 First start applies `supabase/migrations/`. Use `supabase db reset` for a clean DB (migrations + `supabase/seeds/`).
 
-### 3. Environment
+### 3. Compile-time defines
 
-Create `.env` at the project root (`supabase status -o env`):
+The app reads `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY` with `String.fromEnvironment`.
+
+After `supabase start`, copy `API_URL` and `ANON_KEY` from `supabase status -o env` into `.vscode/launch.json` (`toolArgs`) and into the run command:
 
 | Variable | Description |
 |----------|-------------|
 | `SUPABASE_URL` | API URL (`http://127.0.0.1:54321` locally) |
 | `SUPABASE_PUBLISHABLE_KEY` | Anon / publishable key |
 
-Never commit `.env`. Copy `.env.example` for the keys. Do not commit `supabase/.env` (local function secrets).
-
-Typical files: `.env` (local), `.env_remote` (linked dev), `.env_prod` (production).
-
-The app reads these as compile-time defines (`String.fromEnvironment`). Always pass `--dart-define-from-file`. Do not use `flutter_dotenv`.
+Keep local Edge Function secrets in `supabase/.env` (gitignored).
 
 ### 4. Run the app
 
 ```sh
 flutter pub get
-flutter run --dart-define-from-file=.env
+flutter run \
+  --dart-define=SUPABASE_URL=http://127.0.0.1:54321 \
+  --dart-define=SUPABASE_PUBLISHABLE_KEY=<anon key>
 ```
 
 Physical Android + local API:
 
 ```sh
 adb reverse tcp:54321 tcp:54321
-flutter run --dart-define-from-file=.env
+flutter run \
+  --dart-define=SUPABASE_URL=http://127.0.0.1:54321 \
+  --dart-define=SUPABASE_PUBLISHABLE_KEY=<anon key>
 ```
 
-Remote keys: `flutter run --dart-define-from-file=.env_remote`.
+Remote: the same flags with the linked project's URL and publishable key.
 
 ## Migrations
 
@@ -377,7 +381,7 @@ Repo (supabase/migrations/*.sql)
 
 1. `supabase db push` (linked **dev**).
 2. `supabase functions deploy` (and `supabase secrets set` for any extra secrets).
-3. Point `.env_remote` at the remote URL and publishable key; run with `--dart-define-from-file=.env_remote`.
+3. Run with `--dart-define=SUPABASE_URL=<remote url> --dart-define=SUPABASE_PUBLISHABLE_KEY=<remote publishable key>`.
 4. Production: `supabase link --project-ref <prod-project-id>`, `db push`, `functions deploy`, then **link back to dev**.
 
 ## Edge Functions

@@ -14,32 +14,27 @@ analyzer:
     - custom_lint
 ```
 
-## .env and secrets
+## Compile-time config
 
-Do not use `flutter_dotenv`. Do not list `.env` under `flutter: assets`. Values are compile-time defines.
+The app reads compile-time defines:
 
-`.env` (never commit):
-
-```
-SUPABASE_URL=
-SUPABASE_PUBLISHABLE_KEY=
+```dart
+const url = String.fromEnvironment('SUPABASE_URL');
+const publishableKey = String.fromEnvironment('SUPABASE_PUBLISHABLE_KEY');
 ```
 
-`.env.example` (commit this):
-
-```
-SUPABASE_URL=
-SUPABASE_PUBLISHABLE_KEY=
-```
-
-Pass the file on every run and build:
+Pass them on every run and build (`API_URL` and `ANON_KEY` from `supabase status -o env`):
 
 ```sh
-flutter run --dart-define-from-file=.env
-flutter build apk --dart-define-from-file=.env
+flutter run \
+  --dart-define=SUPABASE_URL=http://127.0.0.1:54321 \
+  --dart-define=SUPABASE_PUBLISHABLE_KEY=<anon key>
+flutter build apk \
+  --dart-define=SUPABASE_URL=http://127.0.0.1:54321 \
+  --dart-define=SUPABASE_PUBLISHABLE_KEY=<anon key>
 ```
 
-`.vscode/launch.json` (so IDE / Cursor runs inject the same defines):
+`.vscode/launch.json` (so IDE / Cursor runs inject the same defines). Fill the values from `supabase status`:
 
 ```json
 {
@@ -49,21 +44,25 @@ flutter build apk --dart-define-from-file=.env
       "name": "app",
       "request": "launch",
       "type": "dart",
-      "toolArgs": ["--dart-define-from-file=.env"]
+      "toolArgs": [
+        "--dart-define=SUPABASE_URL=http://127.0.0.1:54321",
+        "--dart-define=SUPABASE_PUBLISHABLE_KEY=<anon key>"
+      ]
     }
   ]
 }
 ```
 
+Remote or production: a second configuration with that project's URL and publishable key.
+
 Add to `.gitignore` (flutter create does not include these):
 
 ```
-.env
-.env_remote
-.env_prod
 supabase/.temp/
 supabase/.env
 ```
+
+`supabase/.env` is for local Edge Function secrets only.
 
 ## lib/main.dart
 
@@ -81,7 +80,8 @@ Future<void> _initializeSupabase() async {
   if (url.isEmpty || publishableKey.isEmpty) {
     throw StateError(
       'Missing SUPABASE_URL or SUPABASE_PUBLISHABLE_KEY. '
-      'Pass --dart-define-from-file=.env',
+      'Pass --dart-define=SUPABASE_URL=... '
+      '--dart-define=SUPABASE_PUBLISHABLE_KEY=...',
     );
   }
   await Supabase.initialize(url: url, publishableKey: publishableKey);
